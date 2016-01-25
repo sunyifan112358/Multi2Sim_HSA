@@ -31,24 +31,34 @@ namespace VI
 
 class Disassembler : public comm::Disassembler
 { 
- 	 //Unique instance of Disassembler 
+ 	// Unique instance of Disassembler 
 	static std::unique_ptr<Disassembler> instance;
 	
-	//Constructor
-	Disassembler() : comm::Disassembler("vi") {}
+	// Path to binary file
+	static std::string binary_file;
 
 public:
-    
+
+	// Constructor
+	Disassembler() : comm::Disassembler("vi") {}
+   
+	/// Disassemble binary file
 	void DisassembleBinary(const std::string &path);
 
-	///Get the only instance of the Volcanic Islands disassembler.	
+	/// Get the only instance of the Volcanic Islands disassembler.	
 	static Disassembler *getInstance();
 
-	///Destroy the disassembler singleton	
+	/// Destroy the disassembler singleton	
 	static void Destroy () 
 	{
 		instance = nullptr;
 	}
+
+	/// Register command-line options
+	static void RegisterOptions();
+
+	/// Process command-line options
+	static void ProcessOptions();
 };
 
 }

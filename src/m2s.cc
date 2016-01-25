@@ -41,6 +41,7 @@
 #include <arch/southern-islands/driver/Driver.h>
 #include <arch/southern-islands/emulator/Emulator.h>
 #include <arch/southern-islands/timing/Timing.h>
+#include <arch/volcanic-islands/disassembler/Disassembler.h>
 #include <arch/arm/disassembler/Disassembler.h>
 #include <arch/arm/emulator/Emulator.h>
 #include <dram/System.h>
@@ -586,6 +587,7 @@ int MainProgram(int argc, char **argv)
 	SI::Driver::RegisterOptions();
 	SI::Emulator::RegisterOptions();
 	SI::Timing::RegisterOptions();
+	VI::Disassembler::RegisterOptions();
 	x86::Disassembler::RegisterOptions();
 	x86::Emulator::RegisterOptions();
 	x86::Timing::RegisterOptions();
@@ -615,6 +617,7 @@ int MainProgram(int argc, char **argv)
 	SI::Driver::ProcessOptions();
 	SI::Emulator::ProcessOptions();
 	SI::Timing::ProcessOptions();
+	VI::Disassembler::ProcessOptions();
 	x86::Disassembler::ProcessOptions();
 	x86::Emulator::ProcessOptions();
 	x86::Timing::ProcessOptions();

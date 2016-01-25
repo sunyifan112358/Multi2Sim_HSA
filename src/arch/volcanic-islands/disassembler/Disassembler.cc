@@ -19,13 +19,54 @@
 
 #include <iostream>
 
+#include <lib/cpp/CommandLine.h>
+
 #include "Disassembler.h"
 
 namespace VI
 {
 
-void Disassembler::DisassembleBinary(const std::string &path) {
+std::string Disassembler::binary_file;
+
+
+std::unique_ptr<Disassembler> Disassembler::instance;
+
+
+Disassembler *Disassembler::getInstance() 
+{
+	if (instance.get())
+		return instance.get();
+
+	instance = misc::new_unique<Disassembler>();
+	return instance.get();
+}
+
+
+void Disassembler::DisassembleBinary(const std::string &path) 
+{
 	std::cerr << "VI disassembler disassembling " << path << "\n";
+}
+
+
+void Disassembler::RegisterOptions() 
+{
+	misc::CommandLine *command_line = misc::CommandLine::getInstance();
+	command_line->setCategory("Volcanic Islands");
+	command_line->RegisterString("--vi-disasm <file>", binary_file, 
+			"Dump Volcanic Islands ISA file for the provided binary"
+			" file.");
+
+}
+
+
+void Disassembler::ProcessOptions() 
+{
+	if (!binary_file.empty()) 
+	{
+		Disassembler *disassembler = Disassembler::getInstance();
+		disassembler->DisassembleBinary(binary_file);
+		exit(0);
+	}
 }
 
 }

@@ -17,41 +17,15 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef ARCH_VOLCANIC_ISLANDS_DISASSEMBLER_DISASSEMBLER_H
-#define ARCH_VOLCANIC_ISLANDS_DISASSEMBLER_DISASSEMBLER_H
+#include <iostream>
 
-#include <memory>
+#include "Disassembler.h"
 
-#include <arch/common/Disassembler.h>
-
-#include "Instruction.h"
-
-namespace VI 
+namespace VI
 {
 
-class Disassembler : public comm::Disassembler
-{ 
- 	 //Unique instance of Disassembler 
-	static std::unique_ptr<Disassembler> instance;
-	
-	//Constructor
-	Disassembler() : comm::Disassembler("vi") {}
-
-public:
-    
-	void DisassembleBinary(const std::string &path);
-
-	///Get the only instance of the Volcanic Islands disassembler.	
-	static Disassembler *getInstance();
-
-	///Destroy the disassembler singleton	
-	static void Destroy () 
-	{
-		instance = nullptr;
-	}
-};
-
+void Disassembler::DisassembleBinary(const std::string &path) {
+	std::cerr << "VI disassembler disassembling " << path << "\n";
 }
 
-#endif
-
+}

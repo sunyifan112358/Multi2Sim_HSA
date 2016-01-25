@@ -17,37 +17,76 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef ARCH_VOLCANIC_ISLANDS_DISASSEMBLER_DISASSEMBLER_H
-#define ARCH_VOLCANIC_ISLANDS_DISASSEMBLER_DISASSEMBLER_H
+#ifndef ARCH_SOUTHERN_ISLANDS_DISASSEMBLER_INSTRUCTION_H
+#define ARCH_SOUTHERN_ISLANDS_DISASSEMBLER_INSTRUCTION_H
 
-#include "Instruction.h"
-
-namespace VI 
+namespace VI
 {
+//Forward declarations
+class Disassembler;
 
-class Disassembler : public comm::Disassembler
-{ 
- 	 //Unique instance of Disassembler 
-	static std::unique_ptr<Disassembler> instance;
-	
-	//Constructor
-	Disassembler() : comm::Disassembler("vi");
 
+class Instruction
+{
 public:
-    
-	void DisassembleBinary();
-
-	///Get the only instance of the Volcanic Islands disassembler.	
-	static Disassembler *getInstance();
-
-	///Destroy the disassembler singleton	
-	static void Destroy () 
+		
+	enum Format
 	{
-		instance = nullptr;
-	}
+		//Scalar ALU Formats
+		FormatSOP2,
+		FormatSOPK,
+		FormatSOP1,
+		FormatSOPC,
+		FormatSOPP,
+
+		//Scalar Memory Format
+		FormatSMEM,
+
+		//Vector ALU Formats
+		FormatVOP2,
+		FormatVOP1,
+		FormatVOPC,
+		FormatVOP3a,
+		FormatVOP3b,
+
+		// Vector Parameter Interpolation Format
+		FormatVINTRP,
+
+		// LDS/GDS Format
+		FormatDS,
+
+		// Vector Memory Buffer Formats
+		FormatMUBUF,
+		FormatMTBUF,
+		
+		// Vector Memory Image Format
+		FormatMIMG,
+
+		// Export Formats
+		FormatEXP,
+		
+		//FLAT Format
+		FormatFLAT,
+
+		// Max
+		FormatCount
+
+	};
+	
+
+
+private:
+
+	//Disassembler
+	Disassembler *disassembler;
+
+
+
+
 };
 
-}
+} //namespace VI
 
-#endif
 
+
+#endif 

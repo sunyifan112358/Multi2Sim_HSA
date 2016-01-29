@@ -29,7 +29,7 @@ class Disassembler;
 class Instruction
 {
 public:
-		
+	/// Microcode Formats		
 	enum Format
 	{
 		//Scalar ALU Formats
@@ -65,16 +65,58 @@ public:
 		// Export Formats
 		FormatEXP,
 		
-		//FLAT Format
+		// FLAT Format
 		FormatFLAT,
 
 		// Max
 		FormatCount
-
 	};
 	
+	/// String map to convert values of type Format	
+	static const misc::StringMap format_map;	
 
+	/// Instruction category
+	enum Category
+	{
+		
+		// Scalar ALU and control Intructions
+		CategorySOP2,
+		CategorySOPK,
+		CategorySOP1,
+		CategorySOPP,
+		CategorySOPC,
+		
+		// Scalar Memory Instruction
+		CategorySMEM,
+		
+		// Vector ALU
+		CategoryVOP2,
+		CategoryVOP1,
+		CategoryVOPC,
+		CategoryVOP3a,
+		CategoryVOP3b,
 
+		// Vector Parameter Interpolation
+		CategoryVINTRP,
+
+		// LDS/GDS
+		CategoryDS,
+
+		// Vector Memory Buffer
+		CategoryMUBUF,
+		CategoryMTBUF,
+
+		// Vector Memory Image
+		CategoryMIMG,
+
+		// EXPORT
+		CategoryEXP,
+
+		// FLAT memory instructions
+		CategoryFLAT,
+
+		CategoryCount
+	};
 private:
 
 	//Disassembler

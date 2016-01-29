@@ -18,10 +18,17 @@
  */
 
 #include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
 #include <lib/cpp/CommandLine.h>
+#include <lib/cpp/Misc.h>
 
 #include "Disassembler.h"
+#include "Binary.h"
+#include "Instruction.h"
+
 
 namespace VI
 {
@@ -45,6 +52,55 @@ Disassembler *Disassembler::getInstance()
 void Disassembler::DisassembleBinary(const std::string &path) 
 {
 	std::cerr << "VI disassembler disassembling " << path << "\n";
+
+	ELFReader::File file(path);
+
+	// Decode ELF
+	for (int i = 0; i < file.getNumSymbols(); i++)
+	{
+		// Symbol
+		ELFReader::Symbol *symbol = file.getSymbol(i);
+		std::string symbol_name = symbol->getName();
+
+		// If symbol is '__OpenCL_X_kernel', it points
+		// to an internal ELF
+		if (misc::StringPrefix(symbol_name, "__OpenCL_") &&
+			misc::StringSuffix(symbol_name, "_kernel"))
+		{
+			// Content at *symbol must be valid
+			if (!symbol->getBuffer())
+				throw Error(misc::fmt(
+					"%s: symbol '%s' invalid content",
+					path.c_str(), symbol_name.c_str()));
+
+			// Get kernel name
+			std::string kernel_name = symbol_name.substr(9, 
+					symbol_name.length() -16);
+			std::cout << "**\n** Disassembly for '__kernel " <<
+					kernel_name << "'\n**\n\n";
+
+			// Get the text section where symbol is currently 
+			// pointing
+			std::istringstream symbol_stream;
+			symbol->getStream(symbol_stream);
+
+			auto buffer = misc::new_unique_array<char>(
+					symbol->getSize());
+			symbol_stream.read(buffer.get(),
+					(unsigned) symbol->getSize());
+			
+			// Create internal ELF
+			Binary binary(buffer.get(), symbol->getSize(), kernel_name);
+			
+			// Get section with VOlcanic Islands ISA
+			BinaryDictEntry *vi_dict_entry = binary.GetSIDictEntry();
+			ElfReader::Section *section = vi_dict_entry->text_section;
+
+			DisassembleBuffer(std::cout, section->getBuffer(), section->getSize());
+
+			std::cout << "\n\n\n";
+		}
+	}
 }
 
 

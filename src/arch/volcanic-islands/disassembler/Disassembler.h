@@ -34,6 +34,38 @@ class Disassembler : public comm::Disassembler
  	// Unique instance of Disassembler 
 	static std::unique_ptr<Disassembler> instance;
 	
+	// FIXME change all count values	
+	static const int dec_table_sopp_count = 29;
+	static const int dec_table_sopc_count = 21;
+	static const int dec_table_sop1_count = 49;
+	static const int dec_table_sopk_count = 20; // no Opcode 19
+	static const int dec_table_sop2_count = 43;
+	static const int dec_table_smem_count = 25;
+
+
+	Instruction::Info inst_info[Instruction::OpcodeCount];
+
+	// Pointers to elements in 'inst_info'
+	// FIXME names
+	Instruction::Info *dec_table_sopp[dec_table_sopp_count];
+	Instruction::Info *dec_table_sopc[dec_table_sopc_count];
+	Instruction::Info *dec_table_sop1[dec_table_sop1_count];
+	Instruction::Info *dec_table_sopk[dec_table_sopk_count];
+	Instruction::Info *dec_table_sop2[dec_table_sop2_count];
+	Instruction::Info *dec_table_smem[dec_table_smrd_count];
+	Instruction::Info *dec_table_vop3[dec_table_vop3_count];
+	Instruction::Info *dec_table_vopc[dec_table_vopc_count];
+	Instruction::Info *dec_table_vop1[dec_table_vop1_count];
+	Instruction::Info *dec_table_vop2[dec_table_vop2_count];
+	Instruction::Info *dec_table_vintrp[dec_table_vintrp_count];
+	Instruction::Info *dec_table_ds[dec_table_ds_count];
+	Instruction::Info *dec_table_mtbuf[dec_table_mtbuf_count];
+	Instruction::Info *dec_table_mubuf[dec_table_mubuf_count];
+	Instruction::Info *dec_table_mimg[dec_table_mimg_count];
+	Instruction::Info *dec_table_exp[dec_table_exp_count];
+
+	void DisassembleBuffer(std::ostream& os, const char *buffer, int size);	
+		
 	// Path to binary file
 	static std::string binary_file;
 
@@ -59,6 +91,13 @@ public:
 
 	/// Process command-line options
 	static void ProcessOptions();
+	
+	Instruction::Info *getDecTableSop2()
+	{
+		assert(index>= 0 && index < dec_table_sop2_count);
+		return dec_table_sop2[index];	
+	}
+	// ...
 };
 
 }

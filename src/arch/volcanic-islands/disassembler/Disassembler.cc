@@ -111,7 +111,6 @@ void Disassembler::RegisterOptions()
 	command_line->RegisterString("--vi-disasm <file>", binary_file, 
 			"Dump Volcanic Islands ISA file for the provided binary"
 			" file.");
-
 }
 
 

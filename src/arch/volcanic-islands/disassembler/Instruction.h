@@ -117,9 +117,32 @@ public:
 
 		CategoryCount
 	};
+
+	struct Info
+	{
+		Opcode opcode;
+
+		Category category;
+
+		const char *name;
+		
+		const char *fmt_str;
+
+		Format fmt;
+
+		/// Opcode bits
+		int op;
+
+		/// Bitmap of flags
+		Flag flags;
+
+		/// Size of the micro-code format in bytes, not counting a
+		/// possible additional literal added by a particular instance.
+		int size;
+	};
+
 private:
 
-	//Disassembler
 	Disassembler *disassembler;
 
 

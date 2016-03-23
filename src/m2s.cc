@@ -469,19 +469,21 @@ void MainLoop()
 		// the number of architectures actively running emulation, as
 		// well as the number of architectures running an active timing
 		// simulation.
-		int num_emu_active, num_timing_active;
-		arch_pool->Run(num_emu_active, num_timing_active);
+		int num_active_emulators;
+		int num_active_timing_simulators;
+		arch_pool->Run(num_active_emulators,
+				num_active_timing_simulators);
 
 		// Event-driven simulation. Only process events and advance to
 		// next global simulation cycle if any architecture performed a
 		// useful timing simulation.
-		if (num_timing_active)
+		if (num_active_timing_simulators)
 			esim->ProcessEvents();
 
 		// If neither functional nor timing simulation was performed for
 		// any architecture, it means that all guest contexts finished
 		// execution - simulation can end.
-		if (!num_emu_active && !num_timing_active)
+		if (!num_active_emulators && !num_active_timing_simulators)
 			esim->Finish("ContextsFinished");
 
 		// Count loop iterations, and check for limit in simulation time
@@ -570,6 +572,9 @@ void DumpReports()
 
 		// Dump the network data for static visualization
 		net_system->StaticGraph();
+
+		// Dump the network routing table
+		net_system->DumpRoutes();
 	}
 }
 
@@ -592,6 +597,7 @@ int MainProgram(int argc, char **argv)
 	MIPS::Disassembler::RegisterOptions();
 	MIPS::Emulator::RegisterOptions();
 	SI::Driver::RegisterOptions();
+	SI::Disassembler::RegisterOptions();
 	SI::Emulator::RegisterOptions();
 	SI::Timing::RegisterOptions();
 	x86::Disassembler::RegisterOptions();
@@ -621,6 +627,7 @@ int MainProgram(int argc, char **argv)
 	MIPS::Disassembler::ProcessOptions();
 	MIPS::Emulator::ProcessOptions();
 	SI::Driver::ProcessOptions();
+	SI::Disassembler::ProcessOptions();
 	SI::Emulator::ProcessOptions();
 	SI::Timing::ProcessOptions();
 	x86::Disassembler::ProcessOptions();

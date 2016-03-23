@@ -61,8 +61,7 @@ public:
 	{
 		FetchKindInvalid = 0,
 		FetchKindShared,
-		FetchKindTimeslice,
-		FetchKindSwitchonevent
+		FetchKindTimeslice
 	};
 
 	/// Fetch kind string map
@@ -134,6 +133,9 @@ public:
 	/// Load/Store queue kind string map
 	static misc::StringMap load_store_queue_kind_map;
 
+	// Maximum number of cycles to simulate
+	static long long max_cycles;
+
 
 private:
 
@@ -158,14 +160,6 @@ private:
 
 	// Number of fast forward instructions
 	static long long num_fast_forward_instructions;
-
-	// Maximum number of cycles to simulate
-	static long long max_cycles;
-
-	/// Version of x86 trace producer.
-	/// See 'src/visual/x86/cpu.c' for x86 trace consumer.
-	static const int TraceVersionMajor;
-	static const int TraceVersionMinor;
 
 
 

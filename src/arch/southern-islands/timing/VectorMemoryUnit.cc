@@ -107,13 +107,17 @@ void VectorMemoryUnit::Complete()
 		// Record trace
 		Timing::trace << misc::fmt("si.end_inst "
 				"id=%lld "
-				"cu=%d\n ",
+				"cu=%d\n",
 				uop->getIdInComputeUnit(),
 				compute_unit->getIndex());
 
 		// Access complete, remove the uop from the queue and get the 
 		// iterator for the next element
 		it = write_buffer.erase(it);
+		assert(uop->getWorkGroup()
+				->inflight_instructions > 0);
+		uop->getWorkGroup()->
+				inflight_instructions--;
 
 		// Statistics
 		num_instructions++;
@@ -302,6 +306,14 @@ void VectorMemoryUnit::Memory()
 
 		// Access global memory
 		assert(!uop->global_memory_witness);
+		Timing::pipeline_debug << misc::fmt(
+				"\t\t@%lld inst=%lld "
+				"id_in_wf=%lld wg=%d/wf=%d (VecMem)\n",
+				compute_unit->getTiming()->getCycle(),
+				uop->getId(),
+				uop->getIdInWavefront(),
+				uop->getWorkGroup()->getId(),
+				uop->getWavefront()->getId());
 		for (auto wi_it = uop->getWavefront()->getWorkItemsBegin(),
 				wi_e = uop->getWavefront()->getWorkItemsEnd();
 				wi_it != wi_e;
@@ -339,7 +351,7 @@ void VectorMemoryUnit::Memory()
 		
 
 				// Make sure we can access the vector cache. If 
-				// so, submit the access. If we can't access the
+				// so, submit the access. If we can access the
 				// cache, mark the accessed flag of the work 
 				// item info struct.
 				if (compute_unit->vector_cache->
@@ -350,14 +362,14 @@ void VectorMemoryUnit::Memory()
 							physical_address, 
 							&uop->global_memory_witness);
 					work_item_info->accessed_cache = true;
+
+					// Access global memory
+					uop->global_memory_witness--;
 				}
 				else
 				{
 					all_work_items_accessed = false;
 				}
-
-				// Access global memory
-				uop->global_memory_witness--;
 			}
 		}
 

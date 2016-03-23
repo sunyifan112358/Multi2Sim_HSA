@@ -37,6 +37,8 @@ std::string System::report_file;
 
 std::string System::graph_file;
 
+std::string System::route_file;
+
 misc::Debug System::debug;
 
 esim::Trace System::trace;
@@ -54,6 +56,9 @@ bool System::stand_alone = false;
 bool System::help = false;
 
 int System::frequency = 1000;
+
+const int System::trace_version_major = 1;
+const int System::trace_version_minor = 10;
 
 std::unique_ptr<System> System::instance;
 
@@ -172,6 +177,12 @@ void System::RegisterOptions()
 			"This file is an input for a supplementary tool called "
 			"'graphplot' which is located in samples/network folder "
 			"in multi2sim trunk.");
+
+	// Dumping the route file
+	command_line->RegisterString("--net-dump-routes <file>", route_file,
+			"Files for representing the routing table of each individual "
+			"network. The input is a string that consequently creates "
+			"an individual file for each network.");
 }
 
 
@@ -214,7 +225,7 @@ void System::ReadConfiguration()
 		// trace, since we have a configuration file, but the trace
 		// will be updated only if the traceSystem is active as well.
 		trace.On();
-		if (trace)
+		if ((trace) && (stand_alone))
 			TraceHeader();
 	}
 }
@@ -275,24 +286,9 @@ void System::UniformTrafficSimulation(Network *network)
 			// Inject
 			while (inject_time[i] < cycle)
 			{
-				// Dump debug information
-				debug << misc::fmt("[Network %s] [cycle %lld] "
-						"Injecting a message from node "
-						"%s to node %s.\n",
-						network->getName().c_str(),
-						cycle,
-						node->getName().c_str(),
-						destination_node->getName().c_str());
-
 				// Schedule next injection
 				inject_time[i] += RandomExponential(
 						injection_rate);
-				debug << misc::fmt("[Network %s] [cycle %lld] "
-						"[node %s] next injection time "
-						"%f\n",
-						network->getName().c_str(),
-						cycle, node->getName().c_str(),
-						inject_time[i]);
 
 				// Send the packet
 				if (network->CanSend(node, destination_node,
@@ -303,6 +299,7 @@ void System::UniformTrafficSimulation(Network *network)
 		}
 
 		// Next cycle
+		debug << misc::fmt("___ cycle %lld ___\n", cycle);	
 		esim_engine->ProcessEvents();
 	}
 }
@@ -335,10 +332,26 @@ void System::DumpReport()
 
 void System::StaticGraph()
 {
+	// Dumping the graph file for each network
 	if (!graph_file.empty())
 	{
 		for (auto &network : networks)
 			network->StaticGraph(graph_file);
+	}
+}
+
+
+void System::DumpRoutes()
+{
+	// Dump the route file for each network
+	if (!route_file.empty())
+	{
+		for (auto &network: networks)
+		{
+			std::string net_path = network->getName() +
+					"_" + route_file;
+			network->getRoutingTable()->DumpRoutes(net_path);
+		}
 	}
 }
 

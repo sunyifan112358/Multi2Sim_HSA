@@ -31,6 +31,8 @@ std::unique_ptr<Timing> Timing::instance;
 
 esim::Trace Timing::trace;
 
+const int Timing::trace_version_major = 1;
+const int Timing::trace_version_minor = 671;
 
 
 //
@@ -44,9 +46,6 @@ comm::Arch::SimKind Timing::sim_kind = comm::Arch::SimFunctional;
 
 // Report file name
 std::string Timing::report_file;
-
-// MMU report file name
-std::string Timing::mmu_report_file;
 
 // Message to display with '--x86-help'
 const std::string Timing::help_message =
@@ -252,6 +251,12 @@ Timing::Timing() : comm::Timing("x86")
 
 	// Create CPU
 	cpu = misc::new_unique<Cpu>(this);
+
+	// Create the trace header related to CPU
+	trace.Header(misc::fmt("x86.init version=\"%d.%d\" "
+			"num_cores=%d num_threads=%d\n",
+			trace_version_major, trace_version_minor,
+			cpu->getNumCores(), cpu->getNumThreads()));
 }
 
 
@@ -290,7 +295,7 @@ bool Timing::Run()
 		esim_engine->Finish("X86MaxInstructions");
 
 	// Stop if maximum number of cycles exceeded
-	if (Cpu::getMaxCycles() && getCycle() >= Cpu::getMaxCycles())
+	if (Cpu::max_cycles && getCycle() >= Cpu::max_cycles)
 		esim_engine->Finish("X86MaxCycles");
 
 	// Stop if any previous reason met
@@ -572,26 +577,21 @@ void Timing::RegisterOptions()
 
 	// Option --x86-config <file>
 	command_line->RegisterString("--x86-config <file>", config_file,
-			"Configuration file for the x86 Cpu timing model, including parameters"
-			"describing stage bandwidth, structures size, and other parameters of"
-			"processor cores and threads. Type 'm2s --x86-help' for details on the file"
+			"Configuration file for the x86 Cpu timing model, including parameters "
+			"describing stage bandwidth, structures size, and other parameters of "
+			"processor cores and threads. Type 'm2s --x86-help' for details on the file "
 			"format.");
-
-	// Option --x86-mmu-report <file>
-	command_line->RegisterString("--x86-mmu-report <file>", mmu_report_file,
-			"File to dump a report of the x86 MMU. Use together with a detailed"
-			"Cpu simulation (option '--x86-sim detailed').");
 
 	// Option --x86-report <file>
 	command_line->RegisterString("--x86-report <file>", report_file,
-			"File to dump a report of the x86 Cpu pipeline, including statistics such"
-			"as the number of instructions handled in every pipeline stage, read/write"
-			"accesses performed on pipeline queues, etc. This option is only valid for"
+			"File to dump a report of the x86 Cpu pipeline, including statistics such "
+			"as the number of instructions handled in every pipeline stage, read/write "
+			"accesses performed on pipeline queues, etc. This option is only valid for "
 			"detailed x86 simulation (option '--x86-sim detailed').");
 
 	// Option --x86-help
 	command_line->RegisterBool("--x86-help", help,
-			"Display a help message describing the format of the x86 Cpu context"
+			"Display a help message describing the format of the x86 Cpu context "
 			"configuration file.");
 
 	// Option --x86-debug-trace-cache <file>
@@ -603,6 +603,13 @@ void Timing::RegisterOptions()
 	command_line->RegisterString("--x86-debug-register-file <file>",
 			RegisterFile::debug_file,
 			"Debug information for the register file.");
+
+	// Option --x86-max-cycles <int>
+	command_line->RegisterInt64("--x86-max-cycles <cycles>", Cpu::max_cycles,
+			"Maximum number of cycles for the timing simulator "
+			"to run.  If this maximum is reached, the simulation "
+			"will finish with the X86MaxCycles string.");
+
 }
 
 
@@ -635,8 +642,7 @@ void Timing::ProcessOptions()
 	// Print x86 configuration INI format
 	if (help)
 	{
-		misc::StringFormatter formatter(help_message);
-		std::cerr << formatter;
+		std::cerr << help_message;
 		exit(0);
 	}
 
@@ -1097,7 +1103,7 @@ void Timing::DumpConfiguration(std::ofstream &os) const
 	os << misc::fmt("IqKind = %s\n", cpu->instruction_queue_kind_map[cpu->getInstructionQueueKind()]);
 	os << misc::fmt("IqSize = %d\n", cpu->getInstructionQueueSize());
 	os << misc::fmt("LsqKind = %s\n", cpu->load_store_queue_kind_map[cpu->getLoadStoreQueueKind()]);
-	os << misc::fmt("LsqSize = %d\n", cpu->getLoadStoreQueueKind());
+	os << misc::fmt("LsqSize = %d\n", cpu->getLoadStoreQueueSize());
 	os << misc::fmt("RfKind = %s\n", RegisterFile::KindMap[RegisterFile::getKind()]);
 	os << misc::fmt("RfIntSize = %d\n", RegisterFile::getIntegerSize());
 	os << misc::fmt("RfFpSize = %d\n", RegisterFile::getFloatingPointSize());

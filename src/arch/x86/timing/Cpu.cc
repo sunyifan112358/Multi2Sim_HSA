@@ -24,9 +24,6 @@
 namespace x86
 {
 
-const int Cpu::TraceVersionMajor = 1;
-const int Cpu::TraceVersionMinor = 671;
-
 misc::StringMap Cpu::recover_kind_map =
 {
 	{"Writeback", RecoverKindWriteback},
@@ -81,7 +78,7 @@ int Cpu::context_quantum;
 int Cpu::thread_quantum;
 int Cpu::thread_switch_penalty;
 long long Cpu::num_fast_forward_instructions;
-long long Cpu::max_cycles;
+long long Cpu::max_cycles = 0;
 int Cpu::recover_penalty;
 Cpu::RecoverKind Cpu::recover_kind;
 Cpu::FetchKind Cpu::fetch_kind;
@@ -127,12 +124,6 @@ Cpu::Cpu(Timing *timing) : timing(timing)
 	cores.reserve(num_cores);
 	for (int i = 0; i < num_cores; i++)
 		cores.emplace_back(misc::new_unique<Core>(this, i));
-
-	// Trace
-	timing->trace.Header(misc::fmt(
-		"x86.init version=\"%d.%d\" num_cores=%d num_threads=%d\n",
-		TraceVersionMajor, TraceVersionMinor,
-		Cpu::getNumCores(), Cpu::getNumThreads()));
 }
 
 

@@ -17,6 +17,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <arch/southern-islands/emulator/WorkGroup.h>
 #include <arch/southern-islands/emulator/Wavefront.h>
 
 #include "SimdUnit.h"
@@ -75,7 +76,7 @@ void SimdUnit::Issue(std::unique_ptr<Uop> uop)
 void SimdUnit::Complete()
 {
 	// Get useful objects
-	ComputeUnit *compute_unit = this->getComputeUnit();
+	ComputeUnit *compute_unit = getComputeUnit();
 	Gpu *gpu = compute_unit->getGpu();
 
 	// Sanity check exec buffer
@@ -99,10 +100,10 @@ void SimdUnit::Complete()
 
 		// Trace
 		Timing::trace << misc::fmt("si.end_inst "
-				           "id=%lld "
-				           "cu=%d\n",
-					    uop->getIdInComputeUnit(),
-			                    compute_unit->getIndex());
+				"id=%lld "
+				"cu=%d\n",
+				uop->getIdInComputeUnit(),
+				compute_unit->getIndex());
 
 		// Statistics
 		num_instructions++;
@@ -111,6 +112,10 @@ void SimdUnit::Complete()
 		// Remove uop from the exec buffer and get the iterator to the
 		// next element
 		it = exec_buffer.erase(it);
+		assert(uop->getWorkGroup()
+				->inflight_instructions > 0);
+		uop->getWorkGroup()->
+				inflight_instructions--;
 	}
 
 }
@@ -119,7 +124,7 @@ void SimdUnit::Complete()
 void SimdUnit::Execute()
 {
 	// Get useful objects
-	ComputeUnit *compute_unit = this->getComputeUnit();
+	ComputeUnit *compute_unit = getComputeUnit();
 
 	// Sanity check decode buffer
 	assert(int(decode_buffer.size()) <= decode_buffer_size);
@@ -212,7 +217,7 @@ void SimdUnit::Execute()
 void SimdUnit::Decode()
 {
 	// Get useful objects
-	ComputeUnit *compute_unit = this->getComputeUnit();
+	ComputeUnit *compute_unit = getComputeUnit();
 
 	// Sanity check issue buffer
 	assert(int(issue_buffer.size()) <= issue_buffer_size);

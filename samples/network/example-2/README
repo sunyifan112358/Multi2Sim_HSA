@@ -1,5 +1,4 @@
 The Southern Island 7970 Default Configuration With external network between L1 and L2.
- (As an example Bandwidths of links is equal to 72 and its message switching/not fliting)
 
 #########################################################################################
 
@@ -25,17 +24,5 @@ SW  = Switch ; One switch act as a Crossbar connecting L1 Cache Level to L2 Cach
 ########################################################################################
 To Run simulation, modify the following for your binary:
 
-$> m2s --si-sim detailed --mem-config mem-si --net-config net-si --si-config si-config \
---ctx-config <context_file_descriptor> --net-report net_report.txt
-
----------------------------------------------------------------------------------------
-%% Format of a context file descriptor 
-[Context 0]
-Cwd = <path to both compiled Host and Kernel binary file>
-Exe = <Compiled Host Binary>
-Args = [options for the Host binart such as -q -x -y -m] --load <Kernel binary file>
-Stdout = <simulation output file - to get a execution report> 
-
-%% A ctx-config file for Matrix Multiplication is provided in this example
-----------------------------------------------------------------------------------------
+$> m2s --si-sim detailed --mem-config mem-si --net-config net-si --si-config si-config --ctx-config ctx-config --net-report report
 

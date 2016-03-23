@@ -70,6 +70,9 @@ class System
 	// Static graph file
 	static std::string graph_file;
 
+	// Static router file
+	static std::string route_file;
+
 	// Show help for network configuration file
 	static bool help;
 
@@ -98,8 +101,8 @@ class System
 	static int message_size;
 
 	// Network trace version identifiers
-	static const int trace_version_major = 1;
-	static const int trace_version_minor = 10;
+	static const int trace_version_major;
+	static const int trace_version_minor;
 
 	// Get a exponential random valueclass Network;
 	static double RandomExponential(double lambda);
@@ -225,6 +228,9 @@ public:
 
 	/// Output the report file
 	void DumpReport();
+
+	/// Output the route file
+	void DumpRoutes();
 
 	/// Output the static graph file
 	void StaticGraph();

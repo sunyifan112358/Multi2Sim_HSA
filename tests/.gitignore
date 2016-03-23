@@ -3,3 +3,5 @@
 .deps
 Makefile
 Makefile.in
+
+*_test
